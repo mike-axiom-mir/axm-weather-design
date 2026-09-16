@@ -1,0 +1,20 @@
+{
+  "schema": "axm.weather-atmosphere-study/v0.1",
+  "study_id": "wind-atmosphere-baseline-001",
+  "source_context": {
+    "repository": "mike-axiom-mir/axm-map-design",
+    "pull_request": 2,
+    "head": "a233763af97fd0ac187013c97659af3496fbe177",
+    "relationship": "CONSUMES_CONTEXT_ONLY_WEATHER_HANDOFF"
+  },
+  "scene_size_m": [24.0, 18.0],
+  "wind_xy": [1.0, 0.35],
+  "wind_semantics": "VISUAL_DIRECTION_ONLY_NOT_PHYSICAL_WIND_SPEED",
+  "visual_speed_m_per_s": 1.8,
+  "particle_count": 36,
+  "seed": 9142,
+  "times_s": [0.0, 0.25, 0.5],
+  "streak_length_m": [0.45, 1.15],
+  "safe_margin_m": 2.0,
+  "truth_boundary": "This study proves deterministic time-sampled atmospheric streak geometry whose measured displacement aligns with the declared visual wind direction inside one bounded scene window. It does not prove physical weather, forces, precipitation, volumetrics, gameplay, collision, engine particles, performance, art-direction acceptance, or final visual quality."
+}
