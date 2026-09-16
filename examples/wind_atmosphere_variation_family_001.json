@@ -1,0 +1,34 @@
+{
+  "schema": "axm.weather-atmosphere-variation-family/v0.1",
+  "family_id": "wind-atmosphere-seeded-field-001",
+  "base_repository": "mike-axiom-mir/axm-weather-design",
+  "base_pull_request": 2,
+  "base_head": "ca2eaba519e8449835b0ea6ef944b7080c3caa6a",
+  "base_source_digest": "b33feba47b0a0f9a99ec439e32a87ff6d4cb2dacffe33ba78f8b646c3a1be8d6",
+  "seed_min": 0,
+  "seed_max": 2147483647,
+  "retained_seeds": [1207, 44021, 83017],
+  "immutable_fields": [
+    "schema",
+    "source_context",
+    "scene_size_m",
+    "wind_xy",
+    "wind_semantics",
+    "visual_speed_m_per_s",
+    "particle_count",
+    "times_s",
+    "streak_length_m",
+    "safe_margin_m",
+    "truth_boundary"
+  ],
+  "material_difference_gate": {
+    "min_moved_start_positions": 30,
+    "min_start_delta_m": 0.25
+  },
+  "field_spread_gate": {
+    "required_quadrants": 4,
+    "min_x_span_fraction": 0.70,
+    "min_y_span_fraction": 0.70
+  },
+  "truth_boundary": "This family varies only the deterministic stochastic seed of the exact Weather visual streak source. It preserves scene extent, visual wind direction/speed semantics, count, timing, streak-length bounds, safe margin and source context. A PASS proves multiple materially different bounded visual-field layouts survive the existing Weather direction checks and local spread gates. It does not prove better art direction, physical weather, turbulence, target-engine particles, environment acceptance, runtime performance, or a universal weather generator."
+}
