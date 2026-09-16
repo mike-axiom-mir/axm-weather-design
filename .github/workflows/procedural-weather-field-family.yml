@@ -1,0 +1,34 @@
+name: Procedural weather field family
+
+on:
+  pull_request:
+  push:
+    branches:
+      - studio/procedural-weather-field-family-001
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile
+        run: python -m compileall tools tests
+      - name: Regressions
+        run: python -m unittest discover -s tests -v
+      - name: Build exact multi-seed procedural evidence
+        if: matrix.python-version == '3.11'
+        env:
+          AXM_RECEIVING_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python tools/weather_variation_family.py
+      - name: Upload procedural evidence
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wind-atmosphere-variation-family-001-evidence
+          path: evidence/wind_atmosphere_variation_family_001/
