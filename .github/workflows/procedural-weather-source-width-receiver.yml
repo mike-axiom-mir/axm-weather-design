@@ -1,0 +1,237 @@
+name: Procedural Weather variants Map source-width receiver evidence
+
+on:
+  push:
+    branches:
+      - studio/procedural-weather-field-family-001
+    paths:
+      - "tools/weather_variation_map_width_receiver.py"
+      - "tools/weather_variation_family.py"
+      - "examples/wind_atmosphere_variation_family_001.json"
+      - ".github/workflows/procedural-weather-source-width-receiver.yml"
+  pull_request:
+    paths:
+      - "tools/weather_variation_map_width_receiver.py"
+      - "tools/weather_variation_family.py"
+      - "examples/wind_atmosphere_variation_family_001.json"
+      - ".github/workflows/procedural-weather-source-width-receiver.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  exact-map-source-width-receiver-family:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONPATH: .
+    steps:
+      - name: Checkout exact Procedural receiving head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Bind exact receiving head
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > exact-head.txt
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile and run receiving repository regressions
+        run: |
+          set -euo pipefail
+          python -m compileall tools tests
+          python -m unittest discover -s tests -v
+
+      - name: Rebuild exact retained Procedural Weather family first
+        env:
+          AXM_RECEIVING_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          python tools/weather_variation_family.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('evidence/wind_atmosphere_variation_family_001/summary.json').read_text())
+          assert data['status']=='PASS', data
+          assert data['retained_seeds']==[1207,44021,83017], data
+          assert all(data['checks'].values()), data
+          PY
+
+      - name: Download exact retained Map PR22 current-world parent evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: environment-weather-variant-current-world-001-e482d003853e52fc835f1797ddfb6506a50083ef
+          path: .parent-evidence
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: mike-axiom-mir/axm-map-design
+          run-id: 35086299949
+
+      - name: Verify exact parent identity and retained live-host prerequisite
+        run: |
+          set -euo pipefail
+          test "$(tr -d '\n\r' < .parent-evidence/exact-head.txt)" = "e482d003853e52fc835f1797ddfb6506a50083ef"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('.parent-evidence')
+          parent=json.loads((root/'current_world_weather_variant.json').read_text())
+          target=json.loads((root/'target_host.json').read_text())
+          assert parent['schema']=='axm.environment-current-world-weather-variant-evidence/v0.1', parent
+          assert parent['status']=='PASS_CURRENT_WORLD_WEATHER_VARIANT_REBIND_STRUCTURE', parent
+          assert all(parent['checks'].values()), parent
+          assert parent['receiving_head']=='e482d003853e52fc835f1797ddfb6506a50083ef', parent
+          assert len(parent['states'])==17, parent
+          assert target['state']=='PASS_CURRENT_WORLD_WEATHER_VARIANT_LIVE_TARGET_HOST', target
+          assert all(target['checks'].values()), target
+          print(json.dumps({'parent_head':parent['receiving_head'],'parent_status':parent['status'],'parent_target_host':target['state']},indent=2))
+          PY
+
+      - name: Checkout exact Map source-width receiver donor
+        uses: actions/checkout@v4
+        with:
+          repository: mike-axiom-mir/axm-map-design
+          ref: dd4a85223ba70f7086db2fdc292e4cb57ac38e47
+          path: .map-width
+          fetch-depth: 1
+
+      - name: Verify exact Map receiver implementation identity
+        run: |
+          set -euo pipefail
+          test "$(git -C .map-width rev-parse HEAD)" = "dd4a85223ba70f7086db2fdc292e4cb57ac38e47"
+          test "$(git -C .map-width hash-object environment-proof/atmosphere_current_world_weather_width_observe.gd)" = "a3d1eaa02a164db1006c0cddd3ce3108c23a63ae"
+          printf '%s\n' 'dd4a85223ba70f7086db2fdc292e4cb57ac38e47' > map-width-donor-head.txt
+          printf '%s\n' 'a3d1eaa02a164db1006c0cddd3ce3108c23a63ae' > map-width-observer-blob.txt
+
+      - name: Download pinned Godot 4.7.2
+        env:
+          GODOT_URL: https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          GODOT_SHA256: cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4
+        run: |
+          set -euo pipefail
+          mkdir -p .godot-bin
+          curl --fail --location --retry 3 --retry-delay 2 "$GODOT_URL" --output .godot-bin/godot.zip
+          echo "$GODOT_SHA256  .godot-bin/godot.zip" | sha256sum --check --strict
+          unzip -q .godot-bin/godot.zip -d .godot-bin
+          chmod +x .godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          .godot-bin/Godot_v4.7.2-stable_linux.x86_64 --version
+
+      - name: Install virtual display when needed
+        run: |
+          if ! command -v xvfb-run >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+          fi
+
+      - name: Exercise all three retained seeds through exact Map receiver
+        env:
+          AXM_RECEIVING_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          root=evidence/weather_procedural_map_width_receiver_001
+          mkdir -p "$root"
+          cp .parent-evidence/current_world_weather_variant.json "$root/parent_variant.json"
+          cp .parent-evidence/target_host.json "$root/parent_target_host.json"
+          cp exact-head.txt "$root/exact-head.txt"
+          cp map-width-donor-head.txt "$root/map-width-donor-head.txt"
+          cp map-width-observer-blob.txt "$root/map-width-observer-blob.txt"
+          mkdir -p .map-width/environment-proof/generated
+
+          for seed in 1207 44021 83017; do
+            seed_root="$root/seed_${seed}"
+            mkdir -p "$seed_root/selected_frames"
+            python tools/weather_variation_map_width_receiver.py build \
+              --parent "$root/parent_variant.json" \
+              --seed "$seed" \
+              --receiving-head "$AXM_RECEIVING_HEAD" \
+              --output "$seed_root/payload.json"
+            cp "$seed_root/payload.json" .map-width/environment-proof/generated/current_world_weather_width.json
+
+            rm -f .map-width/environment-proof/atmosphere-width-*.png \
+                  .map-width/environment-proof/atmosphere-current-world-weather-width-runtime.json
+            set +e
+            xvfb-run --auto-servernum --server-args="-screen 0 1200x800x24" \
+              .godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+              --display-driver x11 \
+              --rendering-method gl_compatibility \
+              --path .map-width/environment-proof \
+              --script atmosphere_current_world_weather_width_observe.gd \
+              2>&1 | tee "$seed_root/godot.log"
+            status=${PIPESTATUS[0]}
+            set -e
+            test "$status" -eq 0
+
+            cp .map-width/environment-proof/atmosphere-current-world-weather-width-runtime.json "$seed_root/runtime.json"
+            python tools/weather_variation_map_width_receiver.py verify \
+              --payload "$seed_root/payload.json" \
+              --runtime "$seed_root/runtime.json" \
+              --image-root .map-width/environment-proof \
+              --output "$seed_root/receiver_receipt.json"
+
+            for context in path_eye elevated_oblique; do
+              for index in 00 08 16; do
+                cp ".map-width/environment-proof/atmosphere-width-candidate-${context}-${index}.png" \
+                   "$seed_root/selected_frames/${context}-${index}.png"
+              done
+            done
+          done
+
+          python tools/weather_variation_map_width_receiver.py summarize \
+            --evidence-root "$root" \
+            --parent "$root/parent_variant.json" \
+            --output "$root/summary.json"
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('evidence/weather_procedural_map_width_receiver_001')
+          data=json.loads((root/'summary.json').read_text())
+          assert data['result']=='PASS_PROCEDURAL_WEATHER_VARIANTS_CURRENT_WORLD_SOURCE_WIDTH_RECEIVER_COMPATIBILITY', data
+          assert data['decision']=='PASS_RECEIVER_COMPATIBILITY_FAMILY_ONLY__NO_MAP_SOURCE_OR_ART_ADOPTION', data
+          assert all(data['checks'].values()), data
+          assert data['seeds']==[1207,44021,83017], data
+          assert data['total_receiver_states']==51, data
+          assert data['total_camera_state_pairs']==102, data
+          assert data['total_projected_width_measurements']==3672, data
+          assert len(data['negative_controls'])==3, data
+          assert data['receiver_code_copied_into_weather'] is False, data
+          print(json.dumps({
+              'result':data['result'],
+              'decision':data['decision'],
+              'seeds':data['seeds'],
+              'total_receiver_states':data['total_receiver_states'],
+              'total_camera_state_pairs':data['total_camera_state_pairs'],
+              'total_projected_width_measurements':data['total_projected_width_measurements'],
+              'maximum_projected_width_residual_px':data['maximum_projected_width_residual_px'],
+              'near_clipped_endpoint_counts_by_seed':data['near_clipped_endpoint_counts_by_seed'],
+              'negative_controls':data['negative_controls'],
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Upload exact Procedural receiver-family evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weather-procedural-map-width-receiver-001-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            evidence/weather_procedural_map_width_receiver_001/exact-head.txt
+            evidence/weather_procedural_map_width_receiver_001/map-width-donor-head.txt
+            evidence/weather_procedural_map_width_receiver_001/map-width-observer-blob.txt
+            evidence/weather_procedural_map_width_receiver_001/parent_variant.json
+            evidence/weather_procedural_map_width_receiver_001/parent_target_host.json
+            evidence/weather_procedural_map_width_receiver_001/summary.json
+            evidence/weather_procedural_map_width_receiver_001/seed_*/payload.json
+            evidence/weather_procedural_map_width_receiver_001/seed_*/runtime.json
+            evidence/weather_procedural_map_width_receiver_001/seed_*/receiver_receipt.json
+            evidence/weather_procedural_map_width_receiver_001/seed_*/godot.log
+            evidence/weather_procedural_map_width_receiver_001/seed_*/selected_frames/*.png
+          if-no-files-found: warn
+          retention-days: 30
