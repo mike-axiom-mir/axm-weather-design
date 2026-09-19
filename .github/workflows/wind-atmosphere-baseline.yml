@@ -1,0 +1,32 @@
+name: Wind atmosphere baseline
+
+on:
+  pull_request:
+  push:
+    branches:
+      - studio/wind-atmosphere-baseline-001
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile
+        run: python -m compileall tools tests
+      - name: Regressions
+        run: python -m unittest discover -s tests -v
+      - name: Build exact VFX evidence
+        if: matrix.python-version == '3.11'
+        run: python tools/wind_atmosphere.py
+      - name: Upload VFX evidence
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wind-atmosphere-baseline-001-evidence
+          path: evidence/wind_atmosphere_baseline_001/
